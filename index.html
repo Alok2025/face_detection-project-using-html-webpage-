@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection Web App</title>
+    <style>
+        .a1 {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 3px solid;
+            padding: 10px;
+            background-color: #f0f8ff;
+            color: #fff;
+            border-radius: 5px;
+        }
+        .a2 {
+            width: 600px;
+            margin: 55px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: white;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #videoFeed {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        @media screen and (max-width: 600px) {
+            #videoFeed {
+                width: 100%;
+            }
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(red, pink, white); /* Light gradient */
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(to right, red, pink, ); /* Gradient */
+            border-radius: 5px;
+            border: 3px solid;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: #333;
+        }
+        video {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .clock {
+            position: absolute;
+            top: 150px;
+            right: 10px;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #fff;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Face Detection with Flask & MediaPipe</h1>
+        <div class="clock" id="clock"></div> <!-- Real-time clock -->
+        <div class="a1">
+            <button onclick="startWebcam()">Start Webcam</button>
+            <button onclick="stopWebcam()">Stop Webcam</button>
+            <button onclick="exitWebcam()">Exit</button>
+        </div>
+        <div class="a2">
+            <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Video Feed">
+        </div>
+    </div>
+
+    <script>
+        function startWebcam() {
+            fetch('/start_webcam', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => console.log(data));
+        }
+
+        function stopWebcam() {
+            fetch('/stop_webcam', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => console.log(data));
+        }
+
+        function exitWebcam() {
+            fetch('/exit_webcam', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById("videoFeed").src = "";
+                });
+        }
+
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            const now = new Date();
+            const offset = 5.5 * 60 * 60 * 1000;
+            const localTime = now.getTime() + (now.getTimezoneOffset() * 60000) + offset;
+            const localDate = new Date(localTime);
+
+            const hours = localDate.getHours();
+            const minutes = localDate.getMinutes();
+            const seconds = localDate.getSeconds();
+
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+            const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+            const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+            const timeString = `${displayHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+            clockElement.innerHTML = timeString;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
